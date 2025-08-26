@@ -1,16 +1,17 @@
 from fastapi import APIRouter, Depends
-from application.interfaces import IDocumentUseCases
-from application.dtos import SemanticSearchRequestDTO
-from presentation.api.dependencies import get_document_use_cases
-from presentation.schemas import SemanticSearchRequest, SemanticSearchResponse
+from sqlalchemy.orm import Session
+from infrastructure.database import get_db
+from infrastructure.database.models import Document
 
-router = APIRouter(prefix="/search", tags=["search"])
+router = APIRouter(prefix="/search")
 
-@router.post("/semantic", response_model=SemanticSearchResponse)
-async def semantic_search(
-    request: SemanticSearchRequest,
-    use_cases: IDocumentUseCases = Depends(get_document_use_cases)
-):
-    dto = SemanticSearchRequestDTO(query=request.query, limit=request.limit)
-    result = await use_cases.semantic_search(dto)
-    return SemanticSearchResponse.from_dto(result)
+@router.get("/")
+def search_documents(query: str, db: Session = Depends(get_db)):
+    """
+    Search documents by title or content (case-insensitive).
+    """
+    results = db.query(Document).filter(
+        (Document.title.ilike(f"%{query}%")) |
+        (Document.content.ilike(f"%{query}%"))
+    ).all()
+    return results
