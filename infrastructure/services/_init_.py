@@ -1,0 +1,1 @@
+from .sentence_transformer_service import SentenceTransformerService
