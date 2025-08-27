@@ -1,19 +1,19 @@
-from pydoc import doc
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from infrastructure.database import get_db
-from infrastructure.database.models import Document
-from domain.entities.document import Document
+from infrastructure.database.models import Document as DocumentModel  # SQLAlchemy model
+from domain.entities.document import Document as DocumentEntity     # Domain entity
 
-router = APIRouter(prefix="/documents")
+router = APIRouter()
 
-@router.post("/")
+@router.post("/documents")
 def create_document(title: str, content: str, db: Session = Depends(get_db)):
-    new_doc = Document(title=doc.title, content=doc.content)
-    db.add(doc)
+    # Create SQLAlchemy model instance
+    new_doc = DocumentModel(title=title, content=content)
+    db.add(new_doc)
     db.commit()
-    db.refresh(doc)
-    return doc
+    db.refresh(new_doc)
+    return new_doc
 
 @router.get("/{doc_id}")
 def get_document(doc_id: int, db: Session = Depends(get_db)):
