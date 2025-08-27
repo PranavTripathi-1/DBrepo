@@ -1,13 +1,15 @@
+from pydoc import doc
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from infrastructure.database import get_db
 from infrastructure.database.models import Document
+from domain.entities.document import Document
 
 router = APIRouter(prefix="/documents")
 
 @router.post("/")
 def create_document(title: str, content: str, db: Session = Depends(get_db)):
-    doc = Document(title=title, content=content)
+    new_doc = Document(title=doc.title, content=doc.content)
     db.add(doc)
     db.commit()
     db.refresh(doc)
