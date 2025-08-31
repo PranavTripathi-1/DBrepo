@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from infrastructure.database import get_db
 from infrastructure.database.models import Document as DocumentModel  # SQLAlchemy model
 from domain.entities.document import Document as DocumentEntity     # Domain entity
-
+from infrastructure.database.models import Document 
 router = APIRouter()
 
 @router.post("/documents")

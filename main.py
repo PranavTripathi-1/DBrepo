@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
-
+from infrastructure.database.models import Base # import your Base and engine
+from infrastructure.database.connection import engine
 from infrastructure.database import create_tables
 from presentation.api.routes import document_routes, search_routes
 from presentation.api.middleware.error_handler import (
@@ -10,6 +11,7 @@ from presentation.api.middleware.error_handler import (
     validation_exception_handler,
     general_exception_handler
 )
+from infrastructure.database.models import Base 
 def create_app() -> FastAPI:
     app = FastAPI(
         title="Clean Architecture API with Vector Embeddings",
@@ -19,9 +21,8 @@ def create_app() -> FastAPI:
         redoc_url="/redoc"
     )
 
-
-
-
+    def create_tables():
+        Base.metadata.create_all(bind=engine)
     # CORS middleware
     app.add_middleware(
         CORSMiddleware,
@@ -37,9 +38,9 @@ def create_app() -> FastAPI:
     app.add_exception_handler(Exception, general_exception_handler)
     
     # Include routers
-    app.include_router(document_routes.router, prefix="/api/v1")
-    app.include_router(search_routes.router, prefix="/api/v1")
-    
+    app.include_router(document_routes.router, prefix="/api/v1/documents")
+    app.include_router(search_routes.router, prefix="/api/v1/search")
+
     # Root endpoint
     @app.get("/")
     async def root():
