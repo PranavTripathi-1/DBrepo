@@ -1,9 +1,13 @@
+from dotenv import load_dotenv
+import os 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from infrastructure.database.models import Base
 
+load_dotenv()  # Load environment variables from .env file
+
 # Database connection URL from Railway
-DATABASE_URL = "mysql+pymysql://root:efHEJTHSGjmzgHtLPmlgXswGCZpDsiNK@shortline.proxy.rlwy.net:45077/railway"
+DATABASE_URL = os.getenv("DATABASE_URL")
 # You should replace this with your actual Railway database connection string.
 
 # Create the SQLAlchemy engine
@@ -18,7 +22,15 @@ def create_tables():
     """
     try:
         print("Attempting to create database tables...")
-        Base.metadata.create_all(bind=engine) # 📍 Breakpoint 2: This is the critical line.
+        Base.metadata.create_all(bind=engine)
         print("Database tables created successfully.")
     except Exception as e:
-        print(f"Error creating tables: {e}") # 📍 Breakpoint 3: Check if a database connection error occurs here.
+        print(f"Error creating tables: {e}")
+        # Handle the error (e.g., log it, raise an exception, etc.)
+        raise
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

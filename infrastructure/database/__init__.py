@@ -1,7 +1,13 @@
 from .connection import engine, SessionLocal, get_db
-from sqlalchemy.orm import declarative_base
+from .models import Base
 
+__all__ = ["engine", "SessionLocal", "get_db", "Base"]
+from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 def create_tables():
-    Base.metadata.create_all(bind=engine)
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("Database tables created successfully.")
+    except Exception as e:
+        print(f"Error creating tables: {e}")
